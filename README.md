@@ -23,4 +23,4 @@ In addition to the above tasks being complete, we will be looking out for
 - Visit http://localhost:8085
 
 ### Contact
-If you have any questions regarding the test, please email [support](mailto:support@fu3e.uk?subject="Developer Test")
+If you have any questions regarding the test, please email support@fu3e.uk
