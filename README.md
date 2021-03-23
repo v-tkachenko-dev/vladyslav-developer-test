@@ -21,6 +21,3 @@ In addition to the above tasks being complete, we will be looking out for
 - `npm install && npm run watch`
 - `php artisan serve --port=8085`
 - Visit http://localhost:8085
-
-### Contact
-If you have any questions regarding the test, please email support@fu3e.uk
