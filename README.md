@@ -1,7 +1,4 @@
-![fu3e logo](https://app.fu3e.uk/files/images/fu3e-logo.png "fu3e logo")
-
-
-# fu3e Developer Test
+# Developer Test
 
 ### Introduction
 This is a small test based around a simple application where a user can interact with a frontend Vue based table to generate CSV data. You can add rows & columns and then export the table into a CSV file using a Laravel API end-point. The application is incomplete and you'll need to complete the following tasks and fix any bugs we have introduced.
