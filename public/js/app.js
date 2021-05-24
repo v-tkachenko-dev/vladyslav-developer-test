@@ -1951,6 +1951,25 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "CSVGenerator",
   data: function data() {
@@ -1974,35 +1993,53 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
-    add_row: function add_row() {// Add new row to data with column keys
+    addRow: function addRow() {
+      console.log('add row data', this.data);
+      var row = {};
+      this.columnKeys.map(function (columnKey) {
+        row[columnKey] = '';
+      });
+      this.data.push(row);
     },
-    remove_row: function remove_row(row_index) {// remove the given row
+    removeRow: function removeRow(rowIndex) {
+      this.data.splice(rowIndex, 1);
     },
-    add_column: function add_column() {},
+    addColumn: function addColumn() {
+      var columnKey = Math.random().toString(36).substring(7);
+      this.columns.push({
+        key: columnKey
+      });
+      this.data.forEach(function (data) {
+        data[columnKey] = '';
+      });
+      console.log("this.data", this.data);
+      console.log("this.columns", this.columns);
+    },
     updateColumnKey: function updateColumnKey(column, event) {
       var oldKey = column.key;
-      var columnKeyExists = !!this.columns.find(function (column) {
-        return column.key === event.target.value;
+      var columnIndex = this.columns.findIndex(function (column) {
+        return column.key === oldKey;
       });
       column.key = event.target.value;
-
-      if (columnKeyExists) {
-        column.key = event.target.value.substring(0, event.target.value.length - 1);
-        return;
-      }
-
       this.data.forEach(function (row) {
-        if (row[oldKey]) {
+        if (row[oldKey] !== undefined) {
           row[column.key] = row[oldKey];
           delete row[oldKey];
         }
       });
+      this.columns[columnIndex].key = column.key;
     },
     submit: function submit() {
       return axios.patch('/api/csv-export', this.data);
     }
   },
-  watch: {}
+  computed: {
+    columnKeys: function columnKeys() {
+      return this.columns.map(function (column) {
+        return column.key;
+      });
+    }
+  }
 });
 
 /***/ }),
@@ -56815,55 +56852,82 @@ var render = function() {
               _c("thead", [
                 _c(
                   "tr",
-                  _vm._l(_vm.columns, function(column) {
-                    return _c("th", [
-                      _c("input", {
-                        staticClass: "form-control",
-                        attrs: { type: "text" },
-                        domProps: { value: column.key },
-                        on: {
-                          input: function($event) {
-                            return _vm.updateColumnKey(column, $event)
-                          }
-                        }
-                      })
-                    ])
-                  }),
-                  0
-                )
-              ]),
-              _vm._v(" "),
-              _c(
-                "tbody",
-                _vm._l(_vm.data, function(row) {
-                  return _c(
-                    "tr",
-                    _vm._l(row, function(dataColumn, columnName) {
-                      return _c("td", [
+                  [
+                    _vm._l(_vm.columns, function(column) {
+                      return _c("th", [
                         _c("input", {
-                          directives: [
-                            {
-                              name: "model",
-                              rawName: "v-model",
-                              value: row[columnName],
-                              expression: "row[columnName]"
-                            }
-                          ],
                           staticClass: "form-control",
                           attrs: { type: "text" },
-                          domProps: { value: row[columnName] },
+                          domProps: { value: column.key },
                           on: {
                             input: function($event) {
-                              if ($event.target.composing) {
-                                return
-                              }
-                              _vm.$set(row, columnName, $event.target.value)
+                              return _vm.updateColumnKey(column, $event)
                             }
                           }
                         })
                       ])
                     }),
-                    0
+                    _vm._v(" "),
+                    _c("th")
+                  ],
+                  2
+                )
+              ]),
+              _vm._v(" "),
+              _c(
+                "tbody",
+                _vm._l(_vm.data, function(row, rowIndex) {
+                  return _c(
+                    "tr",
+                    { key: rowIndex },
+                    [
+                      _vm._l(_vm.columns, function(column) {
+                        return _c("td", [
+                          _c("input", {
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: row[column.key],
+                                expression: "row[column.key]"
+                              }
+                            ],
+                            staticClass: "form-control",
+                            attrs: { type: "text" },
+                            domProps: { value: row[column.key] },
+                            on: {
+                              input: function($event) {
+                                if ($event.target.composing) {
+                                  return
+                                }
+                                _vm.$set(row, column.key, $event.target.value)
+                              }
+                            }
+                          })
+                        ])
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "td",
+                        { staticClass: "d-flex justify-content-center" },
+                        [
+                          _c(
+                            "button",
+                            {
+                              staticClass: "btn btn-danger",
+                              attrs: { type: "button" },
+                              on: {
+                                click: function($event) {
+                                  return _vm.removeRow(rowIndex)
+                                }
+                              }
+                            },
+                            [_vm._v("Remove row")]
+                          )
+                        ]
+                      )
+                    ],
+                    2
                   )
                 }),
                 0
@@ -56872,13 +56936,21 @@ var render = function() {
             _vm._v(" "),
             _c(
               "button",
-              { staticClass: "btn btn-secondary", attrs: { type: "button" } },
+              {
+                staticClass: "btn btn-secondary",
+                attrs: { type: "button" },
+                on: { click: _vm.addColumn }
+              },
               [_vm._v("Add Column")]
             ),
             _vm._v(" "),
             _c(
               "button",
-              { staticClass: "btn btn-secondary", attrs: { type: "button" } },
+              {
+                staticClass: "btn btn-secondary",
+                attrs: { type: "button" },
+                on: { click: _vm.addRow }
+              },
               [_vm._v("Add Row")]
             )
           ]),
@@ -56887,7 +56959,7 @@ var render = function() {
             _c(
               "button",
               {
-                staticClass: "btn btn-primary",
+                staticClass: "btn btn-sm btn-primary",
                 attrs: { type: "button" },
                 on: {
                   click: function($event) {
@@ -69273,8 +69345,8 @@ __webpack_require__.r(__webpack_exports__);
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! /home/kyle/fu3e/developer-test/resources/js/app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! /home/kyle/fu3e/developer-test/resources/sass/app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! /home/whatislove/projects/developer-test/resources/js/app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! /home/whatislove/projects/developer-test/resources/sass/app.scss */"./resources/sass/app.scss");
 
 
 /***/ })

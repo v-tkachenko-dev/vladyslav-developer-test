@@ -16,23 +16,42 @@
                                            @input="updateColumnKey(column, $event)"
                                     />
                                 </th>
+                                <th>
+                                    <!-- table actions  -->
+                                </th>
                             </tr>
                             </thead>
                             <tbody>
-                            <tr v-for="row in data">
-                                <td v-for="(dataColumn, columnName) in row">
-                                    <input type="text" class="form-control" v-model="row[columnName]"/>
+                            <tr v-for="(row, rowIndex) in data" :key="rowIndex">
+                                <td v-for="(column) in columns">
+                                    <input type="text" class="form-control" v-model="row[column.key]"/>
+                                </td>
+                                <td class="d-flex justify-content-center">
+                                    <button
+                                        type="button"
+                                        class="btn btn-danger"
+                                        @click="removeRow(rowIndex)"
+                                    >Remove row</button>
                                 </td>
                             </tr>
                             </tbody>
                         </table>
 
-                        <button type="button" class="btn btn-secondary">Add Column</button>
-                        <button type="button" class="btn btn-secondary">Add Row</button>
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            @click="addColumn"
+                        >Add Column</button>
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            @click="addRow"
+                        >Add Row</button>
                     </div>
 
                     <div class="card-footer text-right">
-                        <button class="btn btn-primary" type="button" @click="submit()">Export</button>
+                        <button class="btn btn-sm btn-primary" type="button" @click="submit()">Export</button>
                     </div>
                 </div>
             </div>
@@ -64,44 +83,53 @@
                     {key: 'first_name'},
                     {key: 'last_name'},
                     {key: 'emailAddress'},
-
                 ]
             }
         },
 
         methods: {
-            add_row() {
-                // Add new row to data with column keys
+            addRow() {
+                console.log('add row data', this.data);
+                const row = {};
+
+                this.columnKeys.map(columnKey => {
+                    row[columnKey] = '';
+                });
+
+                this.data.push(row);
             },
 
-            remove_row(row_index) {
-                // remove the given row
+            removeRow(rowIndex) {
+                this.data.splice(rowIndex, 1)
             },
 
-            add_column() {
+            addColumn() {
+                const columnKey = Math.random().toString(36).substring(7);
+                this.columns.push({
+                    key: columnKey
+                });
 
+                this.data.forEach(data => {
+                    data[columnKey] = '';
+                });
+                console.log("this.data", this.data);
+                console.log("this.columns", this.columns);
             },
 
             updateColumnKey(column, event) {
-                let oldKey = column.key;
-
-                let columnKeyExists = !!this.columns.find(column => column.key === event.target.value);
+                const oldKey = column.key;
+                const columnIndex = this.columns.findIndex(column => column.key === oldKey);
 
                 column.key = event.target.value;
 
-                if (columnKeyExists) {
-                    column.key = event.target.value.substring(0, event.target.value.length - 1);
-                    return;
-                }
-
-                this.data.forEach(
-                    (row) => {
-                        if (row[oldKey]) {
-                            row[column.key] = row[oldKey];
-                            delete row[oldKey];
-                        }
+                this.data.forEach(row => {
+                    if (row[oldKey] !== undefined) {
+                        row[column.key] = row[oldKey];
+                        delete row[oldKey];
                     }
-                )
+                })
+
+                this.columns[columnIndex].key = column.key;
             },
 
             submit() {
@@ -109,7 +137,10 @@
             }
         },
 
-        watch: {
+        computed: {
+            columnKeys() {
+                return this.columns.map(column => column.key);
+            }
         }
     }
 </script>
